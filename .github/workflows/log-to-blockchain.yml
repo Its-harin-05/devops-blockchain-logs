@@ -1,0 +1,47 @@
+name: Build and Log to Blockchain
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Run Build/Test and Save Logs
+      run: |
+        echo "🔧 Starting build and test..." > build-log.txt
+        echo "Build Timestamp: $(date)" >> build-log.txt
+
+        # Simulated test log
+        echo "Running tests..." >> build-log.txt
+        echo "Tests Passed!" >> build-log.txt
+
+        echo "✅ Build completed." >> build-log.txt
+
+    - name: Display Logs
+      run: cat build-log.txt
+
+    - name: Generate SHA-256 Hash of Log
+      run: |
+        sha256sum build-log.txt > hash.txt
+        cat hash.txt
+
+    - name: Prepare Commit ID and Log Hash
+      id: prepare
+      run: |
+        LOG_HASH=$(cut -d' ' -f1 hash.txt)
+        COMMIT_ID=$(git rev-parse --short HEAD)
+
+        echo "LOG_HASH=$LOG_HASH" >> $GITHUB_ENV
+        echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+
+    - name: Print Values to Confirm
+      run: |
+        echo "✅ Commit ID: $COMMIT_ID"
+        echo "🔒 Log Hash: $LOG_HASH"
